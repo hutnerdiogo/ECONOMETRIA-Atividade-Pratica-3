@@ -1,0 +1,23 @@
+---
+title: "Trabalho Pratico 3 Metodos econometricos"
+author: "Grupo 9"
+date: "31 de outubro de 2022"
+output:
+  html_document: default
+  pdf_document:
+    keep_tex: yes
+  word_document: default
+editor_options:
+  markdown:
+    wrap: 72
+
+---
+
+** Relatorio Grupo 9 **
+
+Tema: *relatório completo sobre investimento em empresas estatais*
+
+## Questão 0
+
+```{r}
+```
