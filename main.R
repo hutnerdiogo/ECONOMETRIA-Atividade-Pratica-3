@@ -62,5 +62,65 @@ summary(reg2)
 ##### Questão 6 #####
 #'Crie o gráfico de dispersão, histograma e o gráfico quantil-quantil dos resíduos da regressão.
 #'Analise os gráficos gerados.
+par(mfrow=c(2, 2))
+
+plot(reg2,2)
+
+##### Questão 7 #####
+#'Realize e analise os seguintes testes de normalidade nos resíduos da regressão, citando a H0 e
+#'H1 de cada um:
+#'a) Teste de Shapiro
+#'b) Teste Jarque-Bera
+#'c) Teste de Breusch-Pagan
+#'d) Teste de Durbin-Watson
 
 
+##### Questão 8 #####
+#'Realize os testes de heterocedasticidade (White e Breusch-Pagan) para verificar a
+#'heterocedasticidade nos resíduos do modelo e analise o resultado dos mesmos.
+
+
+
+##### Questão 9 #####
+#'Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
+#'resultado do teste. Conclua sobre a validação do modelo estimado.
+reset(reg2)
+
+##### Questão 10 #####
+#'Estime a matriz de covariância com erros padrão de White e o valor dos coeficientes corrigidos.
+#'Dica: procure sobre a função “coeftest”.
+
+
+##### Questão 11 #####
+#'Estime o modelo de regressão múltipla a seguir e analise os coeficientes, R2, R2 ajustado e o Teste F:
+#'log(Div𝑖) = 𝛼 + 𝛽1BtM𝑖 + 𝛽2RPLP𝑖 + 𝛽3ROE𝑖 + 𝛽4log(AtivoTotal𝑖 )
+
+reg3 <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = data)
+
+##### Questão 12 #####
+#'Refaça os testes propostos nas questões 7,8 e 9. Conclua sobre a validade da modelagem e os
+#'efeitos da reespecificação do modelo.
+
+#' Questão 7
+#'Realize e analise os seguintes testes de normalidade nos resíduos da regressão, citando a H0 e
+#'H1 de cada um:
+#'a) Teste de Shapiro
+#'b) Teste Jarque-Bera
+#'c) Teste de Breusch-Pagan
+#'d) Teste de Durbin-Watson
+
+#' Questão 8
+#'Realize os testes de heterocedasticidade (White e Breusch-Pagan) para verificar a
+#'heterocedasticidade nos resíduos do modelo e analise o resultado dos mesmos.
+
+#' Questão 9
+#'Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
+#'resultado do teste. Conclua sobre a validação do modelo estimado.
+
+
+##### Questão 13 #####
+#'Faça análise gráfica e estatística para presença de outliers.
+
+##### Questão 14 #####
+#' Reestime o modelo excluindo os outliers e faça uma tabela comparativa dos modelos com e
+#'sem outliers. Analise a robustez do modelo
