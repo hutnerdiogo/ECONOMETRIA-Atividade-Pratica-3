@@ -63,8 +63,10 @@ summary(reg2)
 #'Crie o gráfico de dispersão, histograma e o gráfico quantil-quantil dos resíduos da regressão.
 #'Analise os gráficos gerados.
 par(mfrow=c(2, 2))
-
+plot(reg2$residuals)
 plot(reg2,2)
+hist(reg2)
+qqPlot(reg2)
 
 ##### Questão 7 #####
 #'Realize e analise os seguintes testes de normalidade nos resíduos da regressão, citando a H0 e
