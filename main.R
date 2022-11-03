@@ -124,18 +124,36 @@ summary(reg4)
 #'Realize e analise os seguintes testes de normalidade nos resíduos da regressão, citando a H0 e
 #'H1 de cada um:
 #'a) Teste de Shapiro
+shapiro.test(reg4$residuals)
 #'b) Teste Jarque-Bera
+jarque.bera.test(reg4$residuals)
 #'c) Teste de Breusch-Pagan
+bptest(reg4)
 #'d) Teste de Durbin-Watson
+dwtest(reg4)
+
 
 #' Questão 8
 #'Realize os testes de heterocedasticidade (White e Breusch-Pagan) para verificar a
 #'heterocedasticidade nos resíduos do modelo e analise o resultado dos mesmos.
+#Teste BP
+bptest(reg4)
+reg4White <- lm(log(Div) ~
+             BtM * RPLP +
+               BtM * ROE +
+               BtM * log(AtivoTotal) +
+               RPLP * ROE +
+               ROE * log(AtivoTotal)
+               + I(log(AtivoTotal)^2) + I(BtM^2)
+               + I(RPLP^2) + I(ROE^2), data = data)
+#TESTE WHITEEE <-----
+bptest(reg4White)
+
 
 #' Questão 9
 #'Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
 #'resultado do teste. Conclua sobre a validação do modelo estimado.
-
+reset(reg4)
 
 ##### Questão 13 #####
 #'Faça análise gráfica e estatística para presença de outliers.
