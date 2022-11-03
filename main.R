@@ -49,10 +49,9 @@ vcov(reg)
 #'covariância dos coeficientes do modelo estimado. Ademais, realize o teste ANOVA para comparar
 #'os dois modelos, sendo este modelo sem a variável ROA o modelo restrito.
 reg2 <- lm(Div ~ BtM + RPLP + ROE + AtivoTotal, data = data)
-summary(reg2)
+
 vif(reg2)
 vcov(reg2)
-
 anova(reg,reg2)
 #' Anova, hipotese nula é o modelo restrito melhor que o irrestrito. nesse caso se o p valor for abaixo de 5% o modelo
 #' sem o ROA é melhor que o modelo com o ROA

@@ -17,7 +17,143 @@ editor_options:
 
 Tema: *relatório completo sobre investimento em empresas estatais*
 
-## Questão 0
+## Questão 0 - Iniciando arquivos e dados
 
 ```{r}
+library(AER)
+library(strucchange)
+library(fBasics)
+library(quantreg)
+library(quantmod)
+
+data <- read.table('ArquivoExercicio3.csv',sep=';',dec='.',header = T)
+```
+## Questão 1
+A partir dos dados brutos, construa os seguintes indicadores e inclua-os no dataframe original.
+Em seguida, gere o resumo estatístico da base de dados Dica: se usar o comando base$X<-y, é criada
+uma nova coluna na tabela com nome de X contendo a variável y.
+a) Book-to-Market= 𝑃𝐿/𝑉𝑎𝑙𝑜𝑟𝑀𝑒𝑟𝑐𝑎𝑑𝑜 com nome de BtM
+b) Relação PL e Passivo = 𝑃𝐿/𝑃𝑎𝑠𝑠𝑖𝑣𝑜 com nome de RPLP
+c) ROA = 𝐿𝐿 / 𝐴𝑡𝑖𝑣𝑜𝑇𝑜𝑡𝑎𝑙 com nome de ROA
+d) ROE= 𝐿𝐿 /𝑃𝐿 com nome de ROE
+```{r}
+data$BtM <- data$PL / data$ValorMercado
+data$RPLP <- data$PL / data$Passivo
+data$ROA <- data$LL / data$AtivoTotal
+data$ROE <- data$LL / data$PL
+summary(data)
+```
+## Questão 2
+Estime o modelo de regressão múltipla a seguir e analise os coeficientes, R^2, R^2 ajustado e o Teste F:
+Div𝑖 = 𝛼 + 𝛽1BtM𝑖 + 𝛽2RPLP𝑖 + 𝛽3ROA𝑖 + 𝛽4ROE𝑖 + 𝛽5AtivoTotal
+```{r}
+reg <- lm(Div ~ BtM + RPLP + ROA + ROE + AtivoTotal, data = data)
+summary(reg)
+```
+## Questão 3
+Calcule e analise o Fator da Inflação da Variância e a matriz de covariância dos coeficientes
+do modelo estimado. Analise os resultados e conclua sobre a adequabilidade da modelagem.
+```{r}
+vif(reg)
+vcov(reg)
+```
+## Questão 4
+Reestime o modelo retirando o ROA e analise o Fator da Inflação da Variância e a matriz de
+covariância dos coeficientes do modelo estimado. Ademais, realize o teste ANOVA para comparar
+os dois modelos, sendo este modelo sem a variável ROA o modelo restrito.
+```{r}
+reg2 <- lm(Div ~ BtM + RPLP + ROE + AtivoTotal, data = data)
+
+vif(reg2)
+vcov(reg2)
+anova(reg,reg2)
+```
+## Questão 5
+Analise os coeficientes, o R^2 Ajustado e a estatística F do modelo.
+```{r}
+summary(reg2)
+```
+## Questão 6
+Crie o gráfico de dispersão, histograma e o gráfico quantil-quantil dos resíduos da regressão.
+Analise os gráficos gerados.
+```{r}
+par(mfrow=c(2, 2))
+plot(reg2$residuals)
+hist(reg2$residuals)
+qqPlot(reg2$residuals)
+```
+## Questão 7
+Realize e analise os seguintes testes de normalidade nos resíduos da regressão, citando a H0 e
+H1 de cada um:
+a) Teste de Shapiro
+b) Teste Jarque-Bera
+c) Teste de Breusch-Pagan
+d) Teste de Durbin-Watson
+```{r}
+shapiro.test(reg2$residuals)
+jarque.bera.test(reg2$residuals)
+bptest(reg2)
+dwtest(reg2)
+```
+## Questão 8
+Realize os testes de heterocedasticidade (White e Breusch-Pagan) para verificar a
+heterocedasticidade nos resíduos do modelo e analise o resultado dos mesmos.7
+```{r}
+paste("----- TESTE BP -----")
+bptest(reg2)
+reg3 <- lm(Div ~
+             BtM * RPLP +
+               BtM * ROE +
+               BtM * AtivoTotal +
+               RPLP * ROE +
+               ROE * AtivoTotal
+               + I(AtivoTotal^2) + I(BtM^2)
+               + I(RPLP^2) + I(ROE^2), data = data)
+paste("----- TESTE WHITE -----")
+bptest(reg3)
+```
+## Questão 9
+Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
+resultado do teste. Conclua sobre a validação do modelo estimado.
+```{r}
+reset(reg2)
+```
+## Questão 10
+Estime a matriz de covariância com erros padrão de White e o valor dos coeficientes corrigidos.
+Dica: procure sobre a função “coeftest”.
+```{r}
+vcovHC(reg2)
+vcov(reg2)
+```
+## Questão 11
+Estime o modelo de regressão múltipla a seguir e analise os coeficientes, R2, R2 ajustado e o Teste F:
+log(Div𝑖) = 𝛼 + 𝛽1BtM𝑖 + 𝛽2RPLP𝑖 + 𝛽3ROE𝑖 + 𝛽4log(AtivoTotal𝑖 )
+```{r}
+reg4 <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = data)
+summary(reg4)
+```
+## Questão 12
+Refaça os testes propostos nas questões 7,8 e 9. Conclua sobre a validade da modelagem e os
+efeitos da reespecificação do modelo.
+```{r}
+paste("--- Teste de Shapiro ---")
+shapiro.test(reg4$residuals)
+paste("--- Teste Jarque-Bera ---")
+jarque.bera.test(reg4$residuals)
+paste("--- Teste de Breusch-Pagan ---")
+bptest(reg4)
+paste("--- Teste de Durbin-Watson ---")
+dwtest(reg4)
+reg4White <- lm(log(Div) ~
+             BtM * RPLP +
+               BtM * ROE +
+               BtM * log(AtivoTotal) +
+               RPLP * ROE +
+               ROE * log(AtivoTotal)
+               + I(log(AtivoTotal)^2) + I(BtM^2)
+               + I(RPLP^2) + I(ROE^2), data = data)
+paste("--- Teste de White ---")
+bptest(reg4White)
+paste('--- Teste Reset ---')
+reset(reg4)
 ```
