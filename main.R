@@ -3,6 +3,7 @@ library(AER)
 library(strucchange)
 library(fBasics)
 library(quantreg)
+library(quantmod)
 
 
 
@@ -64,24 +65,36 @@ summary(reg2)
 #'Analise os gráficos gerados.
 par(mfrow=c(2, 2))
 plot(reg2$residuals)
-plot(reg2,2)
-hist(reg2)
-qqPlot(reg2)
+hist(reg2$residuals)
+qqPlot(reg2$residuals)
 
 ##### Questão 7 #####
 #'Realize e analise os seguintes testes de normalidade nos resíduos da regressão, citando a H0 e
 #'H1 de cada um:
 #'a) Teste de Shapiro
+shapiro.test(reg2$residuals)
 #'b) Teste Jarque-Bera
+jarque.bera.test(reg2$residuals)
 #'c) Teste de Breusch-Pagan
+bptest(reg2)
 #'d) Teste de Durbin-Watson
-
+dwtest(reg2)
 
 ##### Questão 8 #####
 #'Realize os testes de heterocedasticidade (White e Breusch-Pagan) para verificar a
-#'heterocedasticidade nos resíduos do modelo e analise o resultado dos mesmos.
-
-
+#'heterocedasticidade nos resíduos do modelo e analise o resultado dos mesmos.7
+#Teste BP
+bptest(reg2)
+reg3 <- lm(Div ~
+             BtM * RPLP +
+               BtM * ROE +
+               BtM * AtivoTotal +
+               RPLP * ROE +
+               ROE * AtivoTotal
+               + I(AtivoTotal^2) + I(BtM^2)
+               + I(RPLP^2) + I(ROE^2), data = data)
+#TESTE WHITEEE <-----
+bptest(reg3)
 
 ##### Questão 9 #####
 #'Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
@@ -91,13 +104,17 @@ reset(reg2)
 ##### Questão 10 #####
 #'Estime a matriz de covariância com erros padrão de White e o valor dos coeficientes corrigidos.
 #'Dica: procure sobre a função “coeftest”.
-
+# Erros padrões de White
+vcovHC(reg2)
+#Valores corrigidos
+vcov(reg2)
 
 ##### Questão 11 #####
 #'Estime o modelo de regressão múltipla a seguir e analise os coeficientes, R2, R2 ajustado e o Teste F:
 #'log(Div𝑖) = 𝛼 + 𝛽1BtM𝑖 + 𝛽2RPLP𝑖 + 𝛽3ROE𝑖 + 𝛽4log(AtivoTotal𝑖 )
 
-reg3 <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = data)
+reg4 <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = data)
+summary(reg4)
 
 ##### Questão 12 #####
 #'Refaça os testes propostos nas questões 7,8 e 9. Conclua sobre a validade da modelagem e os
