@@ -4,6 +4,9 @@ library(strucchange)
 library(fBasics)
 library(quantreg)
 library(quantmod)
+library(stargazer)
+#install.packages("tseries")
+library(tseries)
 
 
 
@@ -37,6 +40,7 @@ data$ROE <- data$LL / data$PL
 #' Div𝑖 = 𝛼 + 𝛽1BtM𝑖 + 𝛽2RPLP𝑖 + 𝛽3ROA𝑖 + 𝛽4ROE𝑖 + 𝛽5AtivoTotal
 reg <- lm(Div ~ BtM + RPLP + ROA + ROE + AtivoTotal, data = data)
 summary(reg)
+#'
 
 ##### Questão 3 #####
 #' Calcule e analise o Fator da Inflação da Variância e a matriz de covariância dos coeficientes
@@ -99,6 +103,8 @@ bptest(reg3)
 #'Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
 #'resultado do teste. Conclua sobre a validação do modelo estimado.
 reset(reg2)
+# Considerando o nivel de significancia como 5%, o p valor dele ter sido 0.001, podemos recusar a hipotese nula
+# ou seja, o modelo proprio sem potencias é melhor que um modelo com potencias
 
 ##### Questão 10 #####
 #'Estime a matriz de covariância com erros padrão de White e o valor dos coeficientes corrigidos.
@@ -156,7 +162,41 @@ reset(reg4)
 
 ##### Questão 13 #####
 #'Faça análise gráfica e estatística para presença de outliers.
+par(mfrow=c(2,2))
+plot(reg4)
+hist(reg4$residuals)
+qqPlot(reg4)
 
 ##### Questão 14 #####
 #' Reestime o modelo excluindo os outliers e faça uma tabela comparativa dos modelos com e
-#'sem outliers. Analise a robustez do modelo
+#' sem outliers. Analise a robustez do modelo
+outliers <- c(32,40,49)
+dataSemOutliers <- data[-outliers,]
+reg4SemOutliers <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = data[-outliers,])
+stargazer(reg4,reg4SemOutliers,type="text",column.labels = c("Com Outliers", "Sem Outliers"))
+
+summary(reg4)
+summary(reg4SemOutliers)
+robustes(data, c(3,2))
+robustes(dataSemOutliers, c(3,2))
+
+robustes <- function(data, vector_area) {
+  results <- matrix(,
+    nrow = 10000,
+    ncol = length(names(lm$coefficients)))
+  name_coeficientes <- names(lm$coefficients)
+
+  colnames(results) <- name_coeficientes
+  for (i in 1:10000) {
+    index_amostras <- sample(1:dim(data)[1],size= dim(data)[1], T)
+    amostra <- data[index_amostras,]
+    mod <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = amostra)
+    results[i,] <- mod$coefficients
+  }
+  par(mfrow = vector_area,
+      mar = c(2, 2, 2, 2))
+  for (name in name_coeficientes) {
+    Hist <- hist(results[, name], plot = F, breaks = 100)
+    plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")))
+  }
+}

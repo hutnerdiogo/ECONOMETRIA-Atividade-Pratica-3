@@ -25,6 +25,7 @@ library(strucchange)
 library(fBasics)
 library(quantreg)
 library(quantmod)
+library(tseries)
 
 data <- read.table('ArquivoExercicio3.csv',sep=';',dec='.',header = T)
 ```
@@ -50,6 +51,8 @@ Div𝑖 = 𝛼 + 𝛽1BtM𝑖 + 𝛽2RPLP𝑖 + 𝛽3ROA𝑖 + 𝛽4ROE𝑖 + �
 reg <- lm(Div ~ BtM + RPLP + ROA + ROE + AtivoTotal, data = data)
 summary(reg)
 ```
+O modelo de regressão múltipla da questão possui um R2 de valor numérico de 0,7899. Isso significa que 78,99% da variável dependente Y pode ser explicada pelas variáveis independentes do modelo. Além disso, o modelo possui um R2 ajustado de valor numérico de 0,7764. Isso significa que, ao comparar esse modelo com algum outro modelo semelhante, o nosso modelo inicial descreverá melhor a variável dependente Y do que o segundo modelo da comparação caso esse segundo modelo tenha um R2 ajustado inferior à 0,7764. Vale lembrar que o R2 ajustado é ajustado pelos graus de liberdade do modelo. Por fim, o teste F do modelo tem valor numérico de 58,64, o que é um valor consideravelmente alto. Mas, para conseguir fazer a análise completa do teste F, temos que olhar também para o P-valor do modelo, que é infinitamente pequeno. Desse modo, com a estatística F alta e o P-valor baixo, podemos rejeitar a hipótese nula que afirma que o modelo restrito é o melhor e aceitar o modelo irrestrito.
+
 ## Questão 3
 Calcule e analise o Fator da Inflação da Variância e a matriz de covariância dos coeficientes
 do modelo estimado. Analise os resultados e conclua sobre a adequabilidade da modelagem.
@@ -57,6 +60,7 @@ do modelo estimado. Analise os resultados e conclua sobre a adequabilidade da mo
 vif(reg)
 vcov(reg)
 ```
+A priori, o fator de inflação da variância (VIF) é uma maneira de medir a multicolinearidade, que avalia o quanto a variância de um coeficiente de regressão estimado aumenta se as suas preditoras estiverem correlacionadas. Se nenhum fator estiver correlacionado, os VIFs serão todos 1. Se o VIF for igual a 1 não há multicolinearidade entre os fatores, mas se o VIF for maior que 1, as preditoras podem estar moderadamente correlacionadas. A saída abaixo mostra que o VIF para os fatores de BtM, Ativo total e RPLP  são menores que 1.5, o que indica alguma correlação, mas não o suficiente para se preocupar demais com isso. Isso porque um VIF entre 5 e 10 que indica alta correlação, o que pode ser problemático. E se o VIF for acima de 10, segundo Draper e Smith (1998), pode-se assumir que os coeficientes de regressão estão mal estimados devido à multicolinearidade. Logo, os demais fatores, ROA e ROE, estão entre 4,6 e 5, isto é, apresentam média-alta correlação.
 ## Questão 4
 Reestime o modelo retirando o ROA e analise o Fator da Inflação da Variância e a matriz de
 covariância dos coeficientes do modelo estimado. Ademais, realize o teste ANOVA para comparar
@@ -68,11 +72,13 @@ vif(reg2)
 vcov(reg2)
 anova(reg,reg2)
 ```
+Retirando o ROA e analisando novamente o Fator da Inflação da Variância e a matriz de covariância dos coeficientes do modelo estimado, nota-se que todos os fatores apresentaram VIF menor que 1,5, logo, indica alguma correlação, mas não o suficiente para se preocupar com o problema da multicolinearidade. Dessa forma, é menos provável que haja sérios problemas na estimação dos coeficientes de regressão. Ademais, realizou-se o teste ANOVA, considerando o modelo sem a variável ROA o modelo restrito, em que se testa a hipótese de que a média de dois ou mais fatores são iguais. Notem que o p-valor estimado foi igual à 0,4573 (Pr(>F)), ou seja, estatisticamente igual a zero, isto nos leva a não rejeitar a hipótese nula que afirma que as médias são todas iguais.
 ## Questão 5
 Analise os coeficientes, o R^2 Ajustado e a estatística F do modelo.
 ```{r}
 summary(reg2)
 ```
+Este modelo possui um R2 de valor numérico de 0,7884, o que indica que 78,84% da variável dependente é explicada pelas variáveis explicativas do modelo. Em relação ao R2 ajustado, esse coeficiente tem valor numérico de 0,7776, o que significa que, quando comparado a um outro modelo, ele será o escolhido, caso o R2 ajustado do segundo modelo for inferior a este valor. Agora, caso o R2 ajustado do segundo modelo for superior à 0,7776, ele explicará melhor a variável dependente. Por fim, o teste F do modelo tem estatística equivalente à 73,57, enquanto o P-valor do modelo (estatística também necessária para avaliar o teste F) vale um número infinitamente pequeno. Desse modo, pode-se rejeitar a hipótese nula que afirma que o modelo restrito é o melhor e aceitar o modelo irrestrito.
 ## Questão 6
 Crie o gráfico de dispersão, histograma e o gráfico quantil-quantil dos resíduos da regressão.
 Analise os gráficos gerados.
@@ -82,6 +88,7 @@ plot(reg2$residuals)
 hist(reg2$residuals)
 qqPlot(reg2$residuals)
 ```
+A priori, os gráficos de dispersão de cada variável explicativa contra a variável resposta permite verificar, preliminarmente, tendências e valores atípicos. Assim é possível visualizar tais fatores para os resíduos da regressão e notar a presença de alguns outliers (valores atípicos que não seguem a linha tendenciosa explícita no gráfico). Ademais, em relação ao histograma, outro tipo de gráfico utilizado com a finalidade de analisar tais tendências frequentistas, é visualmente notável que a frequência mais evidente e recorrente do resíduo de regressão é localizada no fator 0e +00 (assim como no primeiro gráfico). No último gráfico, o gráfico quantil-quantil, é possível notar, a partir da declividade da curva azulada, a linha de tendência, que majoritariamente se localiza no fator 0e+00 mas, como dito anteriormente, apresenta a declividade e alguns outliers, demonstrando que não segue uma 100% retilínea.
 ## Questão 7
 Realize e analise os seguintes testes de normalidade nos resíduos da regressão, citando a H0 e
 H1 de cada um:
@@ -95,6 +102,10 @@ jarque.bera.test(reg2$residuals)
 bptest(reg2)
 dwtest(reg2)
 ```
+O teste de Shapiro é utilizado para avaliar se a distribuição é semelhante a uma distribuição normal. Desse modo, a sua hipótese nula (H0) seria: a distribuição é semelhante a uma distribuição normal e a sua hipótese alternativa  (H1) seria: a distribuição não é semelhante a uma distribuição normal. No caso estimado, como o P-valor do modelo é muito baixo, há uma chance muito pequena de se rejeitar a hipótese nula e estar errado, logo, aceitamos a hipótese nula proposta.
+O teste Jarque-Bera, por sua vez, é utilizado para testar a normalidade do modelo, ou seja, se o modelo pertence ou não à uma distribuição normal. Dessa forma, a hipótese nula (H0) seria: y1, y2, . . . , yn ∼ N(µ, σ2 ) enquanto a hipótese alternativa seria que o modelo não pertence à uma distribuição normal. No caso do nosso modelo testado, como o P-valor também é muito baixo, a hipótese nula não é rejeitada.
+O teste de Breusch-Pagan testa a heterocedasticidade do modelo. Ou seja, ele testa se o modelo apresenta  variâncias do termo de perturbação não iguais para todas as observações. Desse modo, a hipótese nula (H0) será que as variâncias são diferentes nas observações e a hipótese alternativa (H1) será que as variâncias não são diferentes. Desse modo,  como o P-valor é infinitamente baixo, a hipótese nula não é rejeitada.
+O teste de Durbin-Watson testa a presença de autocorrelação entre os erros do modelo. Ou seja, ele testa se os erros das observações são correlacionados ou não. Desse modo, a sua hipótese nula (H0) será que os erros são correlacionados enquanto a hipótese alternativa (H1) será que esses erros não são correlacionados. Pelo resultado do nosso teste, como o P-valor é alto (0,3524) nós rejeitamos a nossa hipótese nula e aceitamos a hipótese alternativa, em que os erros do modelo não estão correlacionados.
 ## Questão 8
 Realize os testes de heterocedasticidade (White e Breusch-Pagan) para verificar a
 heterocedasticidade nos resíduos do modelo e analise o resultado dos mesmos.7
@@ -112,12 +123,14 @@ reg3 <- lm(Div ~
 paste("----- TESTE WHITE -----")
 bptest(reg3)
 ```
+A priori, é importante diferenciar o conceito de homocedasticidade e heterocedasticidade. Desse modo, respectivamente, o primeiro conceito afirma que a variância dos erros E, condicionada aos valores das variáveis explanatórias, será constante. Em contrapartida, na heterocedasticidade,  a variância dos erros será diferente para cada valor condicional de Xj. Assim, na presença de heterocedasticidade dos erros, os estimadores de MQO continuam sendo não viesados e consistentes, mas deixam de ser eficientes (ou seja, não possuem mais variância mínima). Outra importante consequência da heterocedasticidade é o viés do estimador da variância de beta, mesmo para amostras grandes (inconsistência). Como resultado, as estatísticas de teste t e F deixam de ser válidas, pois dependem da variância do estimador. Assim, duas formas de identificar a heterocedasticidade são os testes estatísticos: Teste de Breusch-Pagan e o Teste de White. Logo, analisando as saídas do R a seguir, nota-se que, em ambos os testes o p-valor é estatisticamente significativo (<5%). Dessa forma, a probabilidade de erro ao rejeitar H0 é menor que 0,05. Em outras palavras, há fortíssimas evidências para afirmarmos que os erros são heterocedásticos pois ao fazermos tal afirmação estaríamos sujeitos a uma chance de erro menores que 0,05.
 ## Questão 9
 Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
 resultado do teste. Conclua sobre a validação do modelo estimado.
 ```{r}
 reset(reg2)
 ```
+Uma vez que o p-valor não atinge o nível de significância, sendo ele 0,05, e o p-valor ter apenas 0,0017, o modelo deve ser considerado. Assim, podemos descartar a hipótese nula de que um modelo com potencias é melhor do que o modelo proprio, ou seja, o modelo próprio sem potências é melhor que o modelo com potências.
 ## Questão 10
 Estime a matriz de covariância com erros padrão de White e o valor dos coeficientes corrigidos.
 Dica: procure sobre a função “coeftest”.
@@ -132,6 +145,7 @@ log(Div𝑖) = 𝛼 + 𝛽1BtM𝑖 + 𝛽2RPLP𝑖 + 𝛽3ROE𝑖 + 𝛽4log(Ati
 reg4 <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = data)
 summary(reg4)
 ```
+O modelo possui um R2 igual a 0,9737, o que significa que 97,37% da variável dependente Y é explicada pelas variáveis independentes explicativas. Já o R2 ajustado do modelo vale 0,9723, o que significa que, ao compará-lo com algum outro modelo, o modelo inicial será o escolhido se o R2 ajustado do segundo modelo for menor que 0,9737. É bom ressaltar que o R2 ajustado é ajustado pelos graus de liberdade do modelo. Por fim, o teste F do modelo tem estatística igual à 730.3, e o P-valor do modelo corresponde a um número infinitamente pequeno. Desse modo, pode-se rejeitar a hipótese nula que afirma que o modelo restrito é o melhor e aceitar o modelo irrestrito.
 ## Questão 12
 Refaça os testes propostos nas questões 7,8 e 9. Conclua sobre a validade da modelagem e os
 efeitos da reespecificação do modelo.
