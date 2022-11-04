@@ -26,6 +26,7 @@ library(fBasics)
 library(quantreg)
 library(quantmod)
 library(tseries)
+library(stargazer)
 
 data <- read.table('ArquivoExercicio3.csv',sep=';',dec='.',header = T)
 ```
@@ -61,6 +62,7 @@ vif(reg)
 vcov(reg)
 ```
 A priori, o fator de inflação da variância (VIF) é uma maneira de medir a multicolinearidade, que avalia o quanto a variância de um coeficiente de regressão estimado aumenta se as suas preditoras estiverem correlacionadas. Se nenhum fator estiver correlacionado, os VIFs serão todos 1. Se o VIF for igual a 1 não há multicolinearidade entre os fatores, mas se o VIF for maior que 1, as preditoras podem estar moderadamente correlacionadas. A saída abaixo mostra que o VIF para os fatores de BtM, Ativo total e RPLP  são menores que 1.5, o que indica alguma correlação, mas não o suficiente para se preocupar demais com isso. Isso porque um VIF entre 5 e 10 que indica alta correlação, o que pode ser problemático. E se o VIF for acima de 10, segundo Draper e Smith (1998), pode-se assumir que os coeficientes de regressão estão mal estimados devido à multicolinearidade. Logo, os demais fatores, ROA e ROE, estão entre 4,6 e 5, isto é, apresentam média-alta correlação.
+
 ## Questão 4
 Reestime o modelo retirando o ROA e analise o Fator da Inflação da Variância e a matriz de
 covariância dos coeficientes do modelo estimado. Ademais, realize o teste ANOVA para comparar
@@ -73,6 +75,7 @@ vcov(reg2)
 anova(reg,reg2)
 ```
 Retirando o ROA e analisando novamente o Fator da Inflação da Variância e a matriz de covariância dos coeficientes do modelo estimado, nota-se que todos os fatores apresentaram VIF menor que 1,5, logo, indica alguma correlação, mas não o suficiente para se preocupar com o problema da multicolinearidade. Dessa forma, é menos provável que haja sérios problemas na estimação dos coeficientes de regressão. Ademais, realizou-se o teste ANOVA, considerando o modelo sem a variável ROA o modelo restrito, em que se testa a hipótese de que a média de dois ou mais fatores são iguais. Notem que o p-valor estimado foi igual à 0,4573 (Pr(>F)), ou seja, estatisticamente igual a zero, isto nos leva a não rejeitar a hipótese nula que afirma que as médias são todas iguais.
+
 ## Questão 5
 Analise os coeficientes, o R^2 Ajustado e a estatística F do modelo.
 ```{r}
@@ -102,7 +105,7 @@ jarque.bera.test(reg2$residuals)
 bptest(reg2)
 dwtest(reg2)
 ```
-O teste de Shapiro é utilizado para avaliar se a distribuição é semelhante a uma distribuição normal. Desse modo, a sua hipótese nula (H0) seria: a distribuição é semelhante a uma distribuição normal e a sua hipótese alternativa  (H1) seria: a distribuição não é semelhante a uma distribuição normal. No caso estimado, como o P-valor do modelo é muito baixo, há uma chance muito pequena de se rejeitar a hipótese nula e estar errado, logo, aceitamos a hipótese nula proposta.
+O teste de Shapiro é utilizado para avaliar se a distribuição dos residos é semelhante a uma distribuição normal. Desse modo, a sua hipótese nula (H0) seria: a distribuição é semelhante a uma distribuição normal e a sua hipótese alternativa  (H1) seria: a distribuição não é semelhante a uma distribuição normal. No caso estimado, como o P-valor do modelo é muito baixo, há uma chance muito pequena de se rejeitar a hipótese nula e estar errado, logo, aceitamos a hipótese nula proposta.
 O teste Jarque-Bera, por sua vez, é utilizado para testar a normalidade do modelo, ou seja, se o modelo pertence ou não à uma distribuição normal. Dessa forma, a hipótese nula (H0) seria: y1, y2, . . . , yn ∼ N(µ, σ2 ) enquanto a hipótese alternativa seria que o modelo não pertence à uma distribuição normal. No caso do nosso modelo testado, como o P-valor também é muito baixo, a hipótese nula não é rejeitada.
 O teste de Breusch-Pagan testa a heterocedasticidade do modelo. Ou seja, ele testa se o modelo apresenta  variâncias do termo de perturbação não iguais para todas as observações. Desse modo, a hipótese nula (H0) será que as variâncias são diferentes nas observações e a hipótese alternativa (H1) será que as variâncias não são diferentes. Desse modo,  como o P-valor é infinitamente baixo, a hipótese nula não é rejeitada.
 O teste de Durbin-Watson testa a presença de autocorrelação entre os erros do modelo. Ou seja, ele testa se os erros das observações são correlacionados ou não. Desse modo, a sua hipótese nula (H0) será que os erros são correlacionados enquanto a hipótese alternativa (H1) será que esses erros não são correlacionados. Pelo resultado do nosso teste, como o P-valor é alto (0,3524) nós rejeitamos a nossa hipótese nula e aceitamos a hipótese alternativa, em que os erros do modelo não estão correlacionados.
@@ -123,7 +126,7 @@ reg3 <- lm(Div ~
 paste("----- TESTE WHITE -----")
 bptest(reg3)
 ```
-A priori, é importante diferenciar o conceito de homocedasticidade e heterocedasticidade. Desse modo, respectivamente, o primeiro conceito afirma que a variância dos erros E, condicionada aos valores das variáveis explanatórias, será constante. Em contrapartida, na heterocedasticidade,  a variância dos erros será diferente para cada valor condicional de Xj. Assim, na presença de heterocedasticidade dos erros, os estimadores de MQO continuam sendo não viesados e consistentes, mas deixam de ser eficientes (ou seja, não possuem mais variância mínima). Outra importante consequência da heterocedasticidade é o viés do estimador da variância de beta, mesmo para amostras grandes (inconsistência). Como resultado, as estatísticas de teste t e F deixam de ser válidas, pois dependem da variância do estimador. Assim, duas formas de identificar a heterocedasticidade são os testes estatísticos: Teste de Breusch-Pagan e o Teste de White. Logo, analisando as saídas do R a seguir, nota-se que, em ambos os testes o p-valor é estatisticamente significativo (<5%). Dessa forma, a probabilidade de erro ao rejeitar H0 é menor que 0,05. Em outras palavras, há fortíssimas evidências para afirmarmos que os erros são heterocedásticos pois ao fazermos tal afirmação estaríamos sujeitos a uma chance de erro menores que 0,05.
+A priori, é importante diferenciar o conceito de homocedasticidade e heterocedasticidade. Desse modo, respectivamente, o primeiro conceito afirma que a variância dos erros E, condicionada aos valores das variáveis explanatórias, será constante. Em contrapartida, na heterocedasticidade,  a variância dos erros será diferente para cada valor condicional de Xj. Assim, na presença de heterocedasticidade dos erros, os estimadores de MQO continuam sendo não viesados e consistentes, mas deixam de ser eficientes (ou seja, não possuem mais variância mínima). Outra importante consequência da heterocedasticidade é o viés do estimador da variância de beta, mesmo para amostras grandes (inconsistência). Como resultado, as estatísticas de teste t e F deixam de ser válidas, pois dependem da variância do estimador. Assim, duas formas de identificar a heterocedasticidade são os testes estatísticos: Teste de Breusch-Pagan e o Teste de White. Logo, analisando as saídas do R a seguir, nota-se que, em ambos os testes o p-valor é não significativo (<5%). Dessa forma, a probabilidade de erro ao rejeitar H0 é menor que 0,05. Em outras palavras, há fortíssimas evidências para afirmarmos que os erros são heterocedásticos pois ao fazermos tal afirmação estaríamos sujeitos a uma chance de erro menores que 0,05.
 ## Questão 9
 Realize o teste RESET para verificar problemas de forma funcional no modelo e analise o
 resultado do teste. Conclua sobre a validação do modelo estimado.
@@ -171,3 +174,81 @@ bptest(reg4White)
 paste('--- Teste Reset ---')
 reset(reg4)
 ```
+Para o referente aos testes da questão 7, todos os testes refeitos com o novo modelo tiveram um p-valor significativo, em contra-partida dos feitos anteriormente que o tinham abaixo do nível de significância. Sendo que para os testes Shapiro-Wilk, Jarque-Bera, Breusch-Pagan, e Durbin-Watson, os valores foram do p-valor foram respectivamente: 0,2978; 0,3339; 0,1093; 0,1288. Para o modelo de Shapiro-Wilk isso irá significar que a distribuição do erro não se aproxima de uma distribuição normal. Enquanto isso, para o modelo de Jarque-Bera isso irá significar que a distribuição não se aproxima de uma distribuição normal . Já para o teste Breusch-Pagan, que testa se o modelo apresenta variâncias do termo de perturbação não iguais para todas as observações, ao obter um p-valor alto, essa hipótese é rejeitada. Ainda, para Durbin- Watson que testa a presença de autocorrelação entre os erros do modelo, por obter um p-valor alto, essa hipótese é rejeitada.
+Já para o que refere aos testes presentes na questão 8, os testes de heterocedasticidade, White e Breusch-Pagan, no caso da refeita do teste White com o novo modelo o p-valor será significativo, diferente do visto inicialmente, com o valor de 0,2929, e o Breusch-Pagan teve valor não significativo, assim como anteriormente, ou seja, abaixo de 0,05. Isso impactará apenas na visão da hipótese White, que testa se o modelo apresenta variâncias do termo de perturbação não iguais para todas as observações com as variáveis interligadas, descartando-a.
+Por fim, para o teste RESET, feito anteriormente na questão 9, que tinha dado um p-valor não significativo, agora tem, sendo ele 0,1088, portanto não podemos descartar sua hipótese nula.
+
+## Questão 13
+Faça análise gráfica e estatística para presença de outliers.
+```{r}
+par(mfrow=c(2,2))
+plot(reg4)
+```
+```{r}
+par(mfrow=c(1,2))
+hist(reg4$residuals)
+a <- qqPlot(reg4)
+```
+Por essas analises, encontramos 3 possiveis outliers 32, 40, 49
+## Questão 14
+Reestime o modelo excluindo os outliers e faça uma tabela comparativa dos modelos com e
+sem outliers. Analise a robustez do modelo
+
+Primeiro, fazendo uma função para facilitar a analise da robustez:
+```{r}
+robustes <- function(data,reg, vector_area) {
+  results <- matrix(,
+    nrow = 10000,
+    ncol = length(names(reg$coefficients)))
+  name_coeficientes <- names(reg$coefficients)
+
+  colnames(results) <- name_coeficientes
+  for (i in 1:10000) {
+    index_amostras <- sample(1:dim(data)[1],size= dim(data)[1], T)
+    amostra <- data[index_amostras,]
+    mod <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = amostra)
+    results[i,] <- mod$coefficients
+  }
+  par(mfrow = vector_area,
+      mar = c(2, 2, 2, 2))
+  name <- name_coeficientes[1]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-9,-5))
+
+  name <- name_coeficientes[2]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-0.8,-0.2))
+
+  name <- name_coeficientes[3]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-1,2))
+
+  name <- name_coeficientes[4]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-0.6,0.6))
+
+  name <- name_coeficientes[5]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(1,1.3))
+}
+```
+```{r}
+outliers <- c(32,40,49)
+dataSemOutliers <- data[-outliers,]
+reg4SemOutliers <- lm(log(Div) ~ BtM + RPLP + ROE + log(AtivoTotal), data = data[-outliers,])
+
+robustes(data,reg4, c(3,2))
+```
+```{r}
+robustes(dataSemOutliers,reg4, c(3,2))
+```
+Com os testes de robustez a maior descrepancia está no grafico RPLP, com outliers o desvio padrão dele foi maior do que o grafico sem outliers.
+```{r}
+stargazer(reg4,reg4SemOutliers,type="text",column.labels = c("Com Outliers", "Sem Outliers"))
+```
+As principais diferenças foi a redução do desvio padrão dos residuos, entretanto impactou o R2 ajustado em 0.004 a mais, um valor relativamente baixo, sem uma mudança significativa nos coeficientes.

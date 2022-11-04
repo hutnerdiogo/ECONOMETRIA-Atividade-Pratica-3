@@ -164,8 +164,9 @@ reset(reg4)
 #'Faça análise gráfica e estatística para presença de outliers.
 par(mfrow=c(2,2))
 plot(reg4)
+par(mfrow=c(1,2))
 hist(reg4$residuals)
-qqPlot(reg4)
+a<- qqPlot(reg4)
 
 ##### Questão 14 #####
 #' Reestime o modelo excluindo os outliers e faça uma tabela comparativa dos modelos com e
@@ -177,10 +178,10 @@ stargazer(reg4,reg4SemOutliers,type="text",column.labels = c("Com Outliers", "Se
 
 summary(reg4)
 summary(reg4SemOutliers)
-robustes(data, c(3,2))
-robustes(dataSemOutliers, c(3,2))
+robustes(data,reg4, c(3,2))
+robustes(dataSemOutliers,reg4, c(3,2))
 
-robustes <- function(data, vector_area) {
+robustes <- function(data,lm, vector_area) {
   results <- matrix(,
     nrow = 10000,
     ncol = length(names(lm$coefficients)))
@@ -195,8 +196,31 @@ robustes <- function(data, vector_area) {
   }
   par(mfrow = vector_area,
       mar = c(2, 2, 2, 2))
-  for (name in name_coeficientes) {
-    Hist <- hist(results[, name], plot = F, breaks = 100)
-    plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")))
-  }
+  name <- name_coeficientes[1]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-9,-5))
+
+  name <- name_coeficientes[2]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-0.8,-0.2))
+
+  name <- name_coeficientes[3]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-1,2))
+
+  name <- name_coeficientes[4]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(-0.6,0.6))
+
+  name <- name_coeficientes[5]
+  Hist <- hist(results[, name], plot = F, breaks = 100)
+  plot(Hist, main = name, xlab = "", col = ifelse(Hist$breaks <= quantile(results[, name], 0.025), "red", ifelse(Hist$breaks >= quantile(results[, name], 0.975), "red", "white")),
+       xlim = c(1,1.3))
 }
+rmarkdown::pandoc_available()
+rmarkdown::pandoc_exec()
+install.packages("pandoc")
